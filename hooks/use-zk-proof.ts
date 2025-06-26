@@ -1,7 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { ZKProofGenerator, CircuitManager } from "@/lib/zkp"
 
 export interface ZKProof {
-  proof: string
+  proof: any
   publicSignals: string[]
   hash: string
   timestamp: number
@@ -21,33 +22,45 @@ export function useZKProof() {
   const [isVerifying, setIsVerifying] = useState(false)
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null)
   const [copied, setCopied] = useState(false)
+  const [zkpGenerator, setZkpGenerator] = useState<ZKProofGenerator | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Simulate Poseidon hash generation
-  const generatePoseidonHash = (input: string): string => {
-    const hash = Array.from(input)
-      .reduce((acc, char, i) => acc + char.charCodeAt(0) * (i + 1), 0)
-      .toString(16)
-      .padStart(64, "0")
-    return `0x${hash.slice(0, 8)}...${hash.slice(-8)}`
+  // Initialize ZKP generator
+  useEffect(() => {
+    const initZKP = async () => {
+      const artifacts = await CircuitManager.initializeCircuit()
+      const generator = new ZKProofGenerator(artifacts)
+      setZkpGenerator(generator)
+      setIsInitialized(true)
+    }
+    
+    initZKP().catch(error => {
+      console.error("Failed to initialize ZKP:", error)
+      throw error
+    })
+  }, [])
+
+  // Real Poseidon hash generation using circomlibjs
+  const generatePoseidonHash = async (input: string): Promise<string> => {
+    if (!zkpGenerator) {
+      throw new Error("ZKP generator not initialized")
+    }
+    return await zkpGenerator.generatePoseidonHash(input)
   }
 
-  // Simulate ZK proof generation
+  // Real ZK proof generation using your preimage circuit
   const generateZKProof = async (secret: string): Promise<ZKProof> => {
-    const hash = generatePoseidonHash(secret)
-
-    for (let i = 0; i <= 100; i += 5) {
-      setGenerationProgress(i)
-      await new Promise((resolve) => setTimeout(resolve, 100))
+    if (!zkpGenerator || !isInitialized) {
+      throw new Error("ZKP generator not initialized")
     }
 
-    const proof = {
-      proof: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
-      publicSignals: [hash],
-      hash,
-      timestamp: Date.now(),
-    }
-
-    return proof
+    setGenerationProgress(25)
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    const result = await zkpGenerator.generateProof({ secret })
+    
+    setGenerationProgress(100)
+    return result
   }
 
   const handleGenerateProof = async (secret: string) => {
@@ -71,16 +84,20 @@ export function useZKProof() {
 
   const handleVerifyProof = async (verificationInput: string, hashInput: string, onChain = false) => {
     if (!verificationInput.trim() || !hashInput.trim()) return
+    if (!zkpGenerator || !isInitialized) {
+      throw new Error("ZKP generator not initialized")
+    }
 
     setIsVerifying(true)
 
-    await new Promise((resolve) => setTimeout(resolve, onChain ? 3000 : 1000))
-
-    const isValid = verificationInput.length > 50 && hashInput.startsWith("0x")
-
+    const proofData = JSON.parse(verificationInput)
+    const verificationResult = await zkpGenerator.verifyProof(
+      proofData.proof,
+      proofData.publicSignals
+    )
+    
     const result = {
-      isValid,
-      timestamp: Date.now(),
+      ...verificationResult,
       gasUsed: onChain ? 45000 + Math.floor(Math.random() * 5000) : undefined,
       blockNumber: onChain ? 18500000 + Math.floor(Math.random() * 1000) : undefined,
     }
@@ -115,5 +132,6 @@ export function useZKProof() {
     handleGenerateProof,
     handleVerifyProof,
     copyProof,
+    isInitialized, // Expose initialization status
   }
 }

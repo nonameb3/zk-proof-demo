@@ -26,6 +26,7 @@ export default function Component() {
     handleGenerateProof,
     handleVerifyProof,
     copyProof,
+    isInitialized,
   } = useZKProof()
 
   const onGenerateProof = async (secret: string) => {
@@ -73,6 +74,7 @@ export default function Component() {
                 generationProgress={generationProgress}
                 generatePoseidonHash={generatePoseidonHash}
                 onGenerateProof={onGenerateProof}
+                isInitialized={isInitialized}
               />
               <ShareTab 
                 zkProof={zkProof}

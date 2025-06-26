@@ -1,0 +1,14 @@
+# This directory contains static ZKP circuit artifacts
+# 
+# Required files (copy from your circom compilation):
+# - preimage.wasm           (from circuits/preimage_js/ folder)
+# - preimage_0001.zkey      (final proving key after trusted setup)
+# - vkey.json               (verification key)
+#
+# Copy commands from your circuits compilation output:
+# cp circuits/preimage_js/preimage.wasm public/zkp/
+# cp circuits/preimage_0001.zkey public/zkp/  
+# cp circuits/vkey.json public/zkp/
+#
+# Note: The .wasm file is inside the preimage_js/ subdirectory!
+# The .r1cs and .sym files are not needed for runtime.

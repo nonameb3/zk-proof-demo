@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,8 +19,9 @@ interface GenerateTabProps {
   setSecret: (secret: string) => void
   isGenerating: boolean
   generationProgress: number
-  generatePoseidonHash: (input: string) => string
+  generatePoseidonHash: (input: string) => Promise<string>
   onGenerateProof: (secret: string) => Promise<void>
+  isInitialized?: boolean
 }
 
 export function GenerateTab({
@@ -30,8 +31,20 @@ export function GenerateTab({
   generationProgress,
   generatePoseidonHash,
   onGenerateProof,
+  isInitialized = false,
 }: GenerateTabProps) {
   const [showSecret, setShowSecret] = useState(false)
+  const [hashPreview, setHashPreview] = useState<string>("")
+
+  useEffect(() => {
+    if (secret && isInitialized) {
+      generatePoseidonHash(secret)
+        .then(setHashPreview)
+        .catch(() => setHashPreview("Error generating hash"))
+    } else {
+      setHashPreview("")
+    }
+  }, [secret, isInitialized, generatePoseidonHash])
 
   return (
     <TabsContent value="generate" className="space-y-6">
@@ -66,11 +79,11 @@ export function GenerateTab({
           </p>
         </div>
 
-        {secret && (
+        {secret && hashPreview && (
           <Alert>
             <Hash className="h-4 w-4" />
             <AlertDescription>
-              <strong>Poseidon Hash Preview:</strong> {generatePoseidonHash(secret)}
+              <strong>Poseidon Hash Preview:</strong> {hashPreview}
             </AlertDescription>
           </Alert>
         )}
@@ -108,6 +121,9 @@ export function GenerateTab({
             <div>• Hash Function: Poseidon</div>
             <div>• Proof Size: ~256 bytes</div>
             <div>• Generation Time: 2-5 seconds</div>
+            <div className={`flex items-center gap-2 ${isInitialized ? 'text-emerald-600' : 'text-amber-600'}`}>
+              • Status: {isInitialized ? '🔧 Real ZKP Active' : '🎭 Simulation Mode'}
+            </div>
           </div>
         </div>
         <div className="space-y-2">

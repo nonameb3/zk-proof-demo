@@ -78,9 +78,22 @@ All cryptographic operations are **simulated** - the app demonstrates ZK-SNARK c
 - Consistent spacing, typography, and component patterns
 - Accessible design via Radix UI primitives
 
+## ZKP Implementation
+
+- **Static Artifacts**: Circuit artifacts are pre-compiled and stored in `/public/zkp/`
+- **Required Files**: 
+  - `preimage.wasm` - Compiled circuit WebAssembly
+  - `preimage_0001.zkey` - Final proving key from trusted setup
+  - `vkey.json` - Verification key
+- **Real ZKP**: Uses circomlibjs + snarkjs + ethers for actual proof generation
+- **Hash Method**: Uses ethers.keccak256 → BigInt → Poseidon (matching genProof.ts)
+- **Circuit Location**: Source circuits should be in `/circuits/` directory
+- **No Fallbacks**: Errors are thrown instead of falling back to simulation
+
 ## Development Notes
 
 - **Component-first approach**: Prefer editing existing components over creating new ones
-- **Simulation-based**: All ZK proof operations are mocked for educational purposes
+- **Real ZKP operations**: Powered by circom + snarkjs libraries
 - **TypeScript strict mode**: All new code should be properly typed
 - **Responsive design**: Components should work on mobile and desktop
+- **Code**: Try Avoid use type any
