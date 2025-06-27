@@ -15,6 +15,7 @@ import {
   ExternalLink,
   Wallet,
   Link as LinkIcon,
+  AlertTriangle,
 } from "lucide-react"
 import { useWeb3 } from "@/hooks/use-web3"
 import type { HashSubmissionResult, HashInfo } from "@/hooks/use-web3"
@@ -27,7 +28,10 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
   const { 
     isConnected, 
     address, 
-    networkName, 
+    networkName,
+    isCorrectNetwork,
+    switchToBaseSepolia,
+    isSwitching,
     submitHashToContract, 
     checkHashInContract,
     isSubmitting,
@@ -97,7 +101,7 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
         </CardHeader>
         <CardContent>
           {isConnected ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm font-medium">Connected to {networkName}</span>
@@ -105,6 +109,31 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
               <div className="text-sm text-slate-600 font-mono">
                 Address: {address}
               </div>
+              
+              {!isCorrectNetwork && (
+                <Alert className="border-amber-200 bg-amber-50">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-800">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <strong>Wrong Network!</strong>
+                        <div className="text-sm mt-1">Please switch to Base Sepolia to interact with the contract.</div>
+                      </div>
+                      <Button
+                        onClick={switchToBaseSepolia}
+                        disabled={isSwitching}
+                        size="sm"
+                        className="ml-3 bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isSwitching ? (
+                          <Clock className="h-3 w-3 mr-1 animate-spin" />
+                        ) : null}
+                        Switch Network
+                      </Button>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           ) : (
             <div className="flex items-center gap-2">
@@ -140,7 +169,7 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
 
           <Button
             onClick={handleSubmitHash}
-            disabled={!isConnected || !hashToSubmit.trim() || isSubmitting}
+            disabled={!isConnected || !isCorrectNetwork || !hashToSubmit.trim() || isSubmitting}
             className="w-full"
           >
             {isSubmitting ? (
@@ -280,7 +309,11 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
           </div>
           <div>
             <div className="text-sm font-medium">Network</div>
-            <div className="text-sm text-slate-600">{networkName}</div>
+            <div className="text-sm text-slate-600">{networkName || 'Base Sepolia (Chain ID: 84532)'}</div>
+          </div>
+          <div>
+            <div className="text-sm font-medium">RPC URL</div>
+            <div className="text-sm text-slate-600 font-mono">https://sepolia.base.org</div>
           </div>
           <div>
             <div className="text-sm font-medium">Features</div>

@@ -1,12 +1,12 @@
 import { http, createConfig } from 'wagmi'
-import { mainnet, sepolia } from 'wagmi/chains'
+import { mainnet, sepolia, baseSepolia, arbitrum, polygon, optimism, base } from 'wagmi/chains'
 import { injected, metaMask, walletConnect } from 'wagmi/connectors'
 
 // WalletConnect project ID (you should get this from https://cloud.walletconnect.com)
 const projectId = 'your-project-id'
 
 export const config = createConfig({
-  chains: [mainnet, sepolia],
+  chains: [mainnet, sepolia, baseSepolia, arbitrum, polygon, optimism, base],
   connectors: [
     injected(),
     metaMask(),
@@ -15,7 +15,13 @@ export const config = createConfig({
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
+    [baseSepolia.id]: http('https://sepolia.base.org'),
+    [arbitrum.id]: http(),
+    [polygon.id]: http(),
+    [optimism.id]: http(),
+    [base.id]: http(),
   },
+  syncConnectedChain: true,
 })
 
 // Mock smart contract address (you would deploy a real contract)
