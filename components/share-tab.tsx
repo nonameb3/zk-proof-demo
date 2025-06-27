@@ -10,16 +10,36 @@ import {
   Copy,
   Download,
   Info,
+  Upload,
 } from "lucide-react"
 import { ZKProof } from "@/hooks/use-zk-proof"
+import { useWeb3 } from "@/hooks/use-web3"
+import { useState } from "react"
 
 interface ShareTabProps {
   zkProof: ZKProof | null
   copied: boolean
   onCopyProof: () => Promise<void>
+  onSwitchToBlockchain?: () => void
 }
 
-export function ShareTab({ zkProof, copied, onCopyProof }: ShareTabProps) {
+export function ShareTab({ zkProof, copied, onCopyProof, onSwitchToBlockchain }: ShareTabProps) {
+  const { isConnected, submitHashToContract, isSubmitting } = useWeb3()
+  const [submitted, setSubmitted] = useState(false)
+
+  const handleSubmitToBlockchain = async () => {
+    if (!zkProof?.hash) return
+    
+    try {
+      await submitHashToContract(zkProof.hash)
+      setSubmitted(true)
+      if (onSwitchToBlockchain) {
+        onSwitchToBlockchain()
+      }
+    } catch (error) {
+      console.error('Failed to submit hash:', error)
+    }
+  }
   return (
     <TabsContent value="share" className="space-y-6">
       {zkProof && (
@@ -76,15 +96,33 @@ export function ShareTab({ zkProof, copied, onCopyProof }: ShareTabProps) {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={onCopyProof} variant="outline" className="flex-1 bg-transparent">
-                <Copy className="h-4 w-4 mr-2" />
-                {copied ? "Copied!" : "Copy Proof"}
-              </Button>
-              <Button variant="outline" className="flex-1 bg-transparent">
-                <Download className="h-4 w-4 mr-2" />
-                Export JSON
-              </Button>
+            <div className="grid gap-2">
+              <div className="flex gap-2">
+                <Button onClick={onCopyProof} variant="outline" className="flex-1 bg-transparent">
+                  <Copy className="h-4 w-4 mr-2" />
+                  {copied ? "Copied!" : "Copy Proof"}
+                </Button>
+                <Button variant="outline" className="flex-1 bg-transparent">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export JSON
+                </Button>
+              </div>
+              
+              {isConnected && (
+                <Button 
+                  onClick={handleSubmitToBlockchain} 
+                  disabled={isSubmitting || submitted}
+                  className="w-full"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isSubmitting 
+                    ? "Submitting to Blockchain..." 
+                    : submitted 
+                    ? "Submitted to Blockchain ✓" 
+                    : "Submit Hash to Blockchain"
+                  }
+                </Button>
+              )}
             </div>
 
             <Alert>

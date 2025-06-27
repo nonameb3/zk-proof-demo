@@ -3,12 +3,13 @@
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Key, Cpu, Copy, CheckCircle } from "lucide-react"
+import { Key, Cpu, Copy, CheckCircle, Link } from "lucide-react"
 import { Header } from "./header"
 import { KeyBenefits } from "./key-benefits"
 import { GenerateTab } from "./generate-tab"
 import { ShareTab } from "./share-tab"
 import { VerifyTab } from "./verify-tab"
+import { BlockchainTab } from "./blockchain-tab"
 import { useZKProof } from "@/hooks/use-zk-proof"
 
 export default function Component() {
@@ -52,7 +53,7 @@ export default function Component() {
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="generate" className="flex items-center gap-2">
                   <Cpu className="h-4 w-4" />
                   Generate
@@ -64,6 +65,10 @@ export default function Component() {
                 <TabsTrigger value="verify" className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4" />
                   Verify
+                </TabsTrigger>
+                <TabsTrigger value="blockchain" className="flex items-center gap-2">
+                  <Link className="h-4 w-4" />
+                  Blockchain
                 </TabsTrigger>
               </TabsList>
 
@@ -80,11 +85,15 @@ export default function Component() {
                 zkProof={zkProof}
                 copied={copied}
                 onCopyProof={copyProof}
+                onSwitchToBlockchain={() => setActiveTab("blockchain")}
               />
               <VerifyTab 
                 isVerifying={isVerifying}
                 verificationResult={verificationResult}
                 onVerifyProof={handleVerifyProof}
+              />
+              <BlockchainTab 
+                currentHash={zkProof?.hash}
               />
             </Tabs>
           </CardContent>

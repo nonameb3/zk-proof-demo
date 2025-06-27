@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { Providers } from '@/components/providers'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'ZK Proof Demo - Web3 Integration',
+  description: 'Zero-Knowledge Proof demonstration with blockchain integration',
 }
 
 export default function RootLayout({
@@ -14,7 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
