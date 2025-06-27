@@ -90,21 +90,34 @@ export function useZKProof() {
 
     setIsVerifying(true)
 
-    const proofData = JSON.parse(verificationInput)
-    const verificationResult = await zkpGenerator.verifyProof(
-      proofData.proof,
-      proofData.publicSignals
-    )
-    
-    const result = {
-      ...verificationResult,
-      gasUsed: onChain ? 45000 + Math.floor(Math.random() * 5000) : undefined,
-      blockNumber: onChain ? 18500000 + Math.floor(Math.random() * 1000) : undefined,
-    }
+    try {
+      const proofData = JSON.parse(verificationInput)
+      
+      // Validate that the public hash matches expected hash
+      if (proofData.publicSignals[0] !== hashInput) {
+        throw new Error(`Hash mismatch: expected ${hashInput}, got ${proofData.publicSignals[0]}`)
+      }
+      
+      const verificationResult = await zkpGenerator.verifyProof(
+        proofData.proof,
+        proofData.publicSignals
+      )
+      
+      const result = {
+        ...verificationResult,
+        gasUsed: onChain ? 45000 + Math.floor(Math.random() * 5000) : undefined,
+        blockNumber: onChain ? 18500000 + Math.floor(Math.random() * 1000) : undefined,
+      }
 
-    setVerificationResult(result)
-    setIsVerifying(false)
-    return result
+      setVerificationResult(result)
+      setIsVerifying(false)
+      return result
+    } catch (error) {
+      console.error("Verification failed:", error)
+      setVerificationResult(null) // Clear previous results on error
+      setIsVerifying(false)
+      throw error
+    }
   }
 
   const copyProof = async () => {

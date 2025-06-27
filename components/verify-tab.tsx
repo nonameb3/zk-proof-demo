@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { TabsContent } from "@/components/ui/tabs"
 import {
   CheckCircle,
+  AlertCircle,
   Clock,
   Zap,
   Network,
@@ -22,9 +23,15 @@ interface VerifyTabProps {
 export function VerifyTab({ isVerifying, verificationResult, onVerifyProof }: VerifyTabProps) {
   const [verificationInput, setVerificationInput] = useState("")
   const [hashInput, setHashInput] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
-  const handleVerify = (onChain = false) => {
-    onVerifyProof(verificationInput, hashInput, onChain)
+  const handleVerify = async (onChain = false) => {
+    setError(null)
+    try {
+      await onVerifyProof(verificationInput, hashInput, onChain)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Verification failed")
+    }
   }
 
   return (
@@ -76,6 +83,16 @@ export function VerifyTab({ isVerifying, verificationResult, onVerifyProof }: Ve
           </div>
         )}
 
+        {error && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              <strong>Verification Error</strong>
+              <div className="text-sm mt-1">{error}</div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {verificationResult && (
           <Alert
             className={
@@ -85,7 +102,7 @@ export function VerifyTab({ isVerifying, verificationResult, onVerifyProof }: Ve
             {verificationResult.isValid ? (
               <CheckCircle className="h-4 w-4 text-emerald-600" />
             ) : (
-              <div className="h-4 w-4 rounded-full bg-red-600" />
+              <AlertCircle className="h-4 w-4 text-red-600" />
             )}
             <AlertDescription className={verificationResult.isValid ? "text-emerald-800" : "text-red-800"}>
               <div className="space-y-2">

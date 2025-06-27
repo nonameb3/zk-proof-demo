@@ -121,9 +121,6 @@ export function GenerateTab({
             <div>• Hash Function: Poseidon</div>
             <div>• Proof Size: ~256 bytes</div>
             <div>• Generation Time: 2-5 seconds</div>
-            <div className={`flex items-center gap-2 ${isInitialized ? 'text-emerald-600' : 'text-amber-600'}`}>
-              • Status: {isInitialized ? '🔧 Real ZKP Active' : '🎭 Simulation Mode'}
-            </div>
           </div>
         </div>
         <div className="space-y-2">
