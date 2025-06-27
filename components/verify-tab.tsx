@@ -10,7 +10,6 @@ import {
   AlertCircle,
   Clock,
   Zap,
-  Network,
 } from "lucide-react"
 import { VerificationResult } from "@/hooks/use-zk-proof"
 
