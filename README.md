@@ -2,7 +2,7 @@
 
 🛡️ **A complete ZK-SNARK demonstration with real blockchain integration**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-xxx-brightgreen?style=for-the-badge)](xxx)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-zkp.roonnapai.dev-brightgreen?style=for-the-badge)](https://zkp.roonnapai.dev/)
 [![Base Sepolia](https://img.shields.io/badge/Network-Base%20Sepolia-blue?style=for-the-badge)](https://sepolia.basescan.org/)
 [![Contract](https://img.shields.io/badge/Contract-0xfC130691...Efd232b-orange?style=for-the-badge)](https://sepolia.basescan.org/address/0xfC13069148EFED7865b1355aCb9986E8eEfd232b)
 
@@ -10,9 +10,11 @@
 
 A full-stack Zero-Knowledge Proof application demonstrating privacy-preserving verification using **Groth16 ZK-SNARKs**. Users can generate cryptographic proofs of secret knowledge without revealing the secrets themselves, then verify these proofs both locally and on-chain.
 
+![Zero-Knowledge Proof Demo Interface](image/homepage.png)
+
 ## 🚀 Live Demo
 
-**[xxx](xxx)** *(URL will be updated with deployment)*
+**[zkp.roonnapai.dev](https://zkp.roonnapai.dev/)**
 
 ## ✨ Features
 
