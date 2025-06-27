@@ -1,16 +1,12 @@
 import { http, createConfig } from 'wagmi'
 import { mainnet, sepolia, baseSepolia, arbitrum, polygon, optimism, base } from 'wagmi/chains'
-import { injected, metaMask, walletConnect } from 'wagmi/connectors'
-
-// WalletConnect project ID (you should get this from https://cloud.walletconnect.com)
-const projectId = 'your-project-id'
+import { injected, metaMask } from 'wagmi/connectors'
 
 export const config = createConfig({
   chains: [mainnet, sepolia, baseSepolia, arbitrum, polygon, optimism, base],
   connectors: [
-    injected(),
+    injected(), // Supports MetaMask, Rabby, and other browser wallets
     metaMask(),
-    walletConnect({ projectId }),
   ],
   transports: {
     [mainnet.id]: http(),
