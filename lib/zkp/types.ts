@@ -6,7 +6,7 @@ export interface ZKProofInput {
 }
 
 export interface ZKProofOutput {
-  proof: any;
+  proof: ZKProofData;
   publicSignals: string[];
   hash: string;
   timestamp: number;

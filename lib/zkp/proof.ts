@@ -5,7 +5,8 @@ import type { ZKProofInput, ZKProofOutput, ZKVerificationResult, CircuitArtifact
 
 export class ZKProofGenerator {
   private artifacts: CircuitArtifacts
-  private poseidon: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private poseidon: any = null
   private initialized: boolean = false
 
   constructor(artifacts: CircuitArtifacts) {
@@ -56,7 +57,7 @@ export class ZKProofGenerator {
 
     return {
       proof,
-      publicSignals: publicSignals.map((signal: any) => signal.toString()),
+      publicSignals: publicSignals.map((signal: string | number | bigint) => signal.toString()),
       hash,
       timestamp: Date.now()
     }
@@ -64,6 +65,7 @@ export class ZKProofGenerator {
 
   // Verify ZK proof
   async verifyProof(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     proof: any,
     publicSignals: string[]
   ): Promise<ZKVerificationResult> {

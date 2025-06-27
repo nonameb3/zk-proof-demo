@@ -36,8 +36,8 @@ export function ShareTab({ zkProof, copied, onCopyProof, onSwitchToBlockchain }:
       if (onSwitchToBlockchain) {
         onSwitchToBlockchain()
       }
-    } catch (error) {
-      console.error('Failed to submit hash:', error)
+    } catch {
+      // Failed to submit hash to blockchain
     }
   }
   return (

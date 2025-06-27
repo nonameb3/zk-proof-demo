@@ -12,7 +12,6 @@ import {
   Clock,
   Upload,
   Search,
-  ExternalLink,
   Wallet,
   Link as LinkIcon,
   AlertTriangle,
@@ -323,7 +322,7 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
             Verify ZK Proof on Blockchain
           </CardTitle>
           <CardDescription>
-            Verify a ZK proof against the stored hash using the contract's verifyKnowledge function
+            Verify a ZK proof against the stored hash using the contract&apos;s verifyKnowledge function
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
