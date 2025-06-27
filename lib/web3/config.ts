@@ -24,39 +24,44 @@ export const config = createConfig({
   syncConnectedChain: true,
 })
 
-// Mock smart contract address (you would deploy a real contract)
-export const HASH_STORAGE_CONTRACT = {
-  address: '0x1234567890123456789012345678901234567890' as const,
+// Real deployed AnonymousData contract on Base Sepolia
+export const ANONYMOUS_DATA_CONTRACT = {
+  address: '0xfC13069148EFED7865b1355aCb9986E8eEfd232b' as const,
   abi: [
-    // Store hash function
+    { "inputs": [{ "internalType": "address", "name": "_verifier", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" },
     {
-      name: 'storeHash',
-      type: 'function',
-      stateMutability: 'nonpayable',
-      inputs: [{ name: 'hash', type: 'string' }],
-      outputs: [],
+      "inputs": [{ "internalType": "uint256", "name": "_hash", "type": "uint256" }],
+      "name": "setHash",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
-    // Check if hash exists
     {
-      name: 'hashExists',
-      type: 'function',
-      stateMutability: 'view',
-      inputs: [{ name: 'hash', type: 'string' }],
-      outputs: [{ name: '', type: 'bool' }],
+      "inputs": [],
+      "name": "storedHash",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
     },
-    // Get hash storage info
     {
-      name: 'getHashInfo',
-      type: 'function',
-      stateMutability: 'view',
-      inputs: [{ name: 'hash', type: 'string' }],
-      outputs: [
-        { name: 'exists', type: 'bool' },
-        { name: 'timestamp', type: 'uint256' },
-        { name: 'submitter', type: 'address' },
+      "inputs": [],
+      "name": "verifier",
+      "outputs": [{ "internalType": "contract Groth16Verifier", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256[2]", "name": "a", "type": "uint256[2]" },
+        { "internalType": "uint256[2][2]", "name": "b", "type": "uint256[2][2]" },
+        { "internalType": "uint256[2]", "name": "c", "type": "uint256[2]" }
       ],
-    },
-  ],
+      "name": "verifyKnowledge",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ] as const,
 } as const
 
 declare module 'wagmi' {

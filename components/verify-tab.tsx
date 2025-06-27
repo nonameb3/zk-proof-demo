@@ -58,23 +58,14 @@ export function VerifyTab({ isVerifying, verificationResult, onVerifyProof }: Ve
           />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-3">
-          <Button
-            onClick={() => handleVerify(false)}
-            disabled={!verificationInput.trim() || !hashInput.trim() || isVerifying}
-            variant="outline"
-          >
-            <Zap className="h-4 w-4 mr-2" />
-            Verify Locally
-          </Button>
-          <Button
-            onClick={() => handleVerify(true)}
-            disabled={!verificationInput.trim() || !hashInput.trim() || isVerifying}
-          >
-            <Network className="h-4 w-4 mr-2" />
-            Verify On-Chain
-          </Button>
-        </div>
+        <Button
+          onClick={() => handleVerify(false)}
+          disabled={!verificationInput.trim() || !hashInput.trim() || isVerifying}
+          className="w-full"
+        >
+          <Zap className="h-4 w-4 mr-2" />
+          Verify Proof
+        </Button>
 
         {isVerifying && (
           <div className="flex items-center gap-2 text-sm">

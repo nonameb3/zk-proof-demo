@@ -18,7 +18,7 @@ import {
   AlertTriangle,
 } from "lucide-react"
 import { useWeb3 } from "@/hooks/use-web3"
-import type { HashSubmissionResult, HashInfo } from "@/hooks/use-web3"
+import type { HashSubmissionResult, HashInfo, ZKVerificationResult } from "@/hooks/use-web3"
 
 interface BlockchainTabProps {
   currentHash?: string
@@ -34,14 +34,18 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
     isSwitching,
     submitHashToContract, 
     checkHashInContract,
+    verifyZKProofOnChain,
     isSubmitting,
-    isChecking 
+    isChecking,
+    isVerifyingZK
   } = useWeb3()
   
   const [hashToSubmit, setHashToSubmit] = useState(currentHash || "")
   const [hashToCheck, setHashToCheck] = useState("")
+  const [proofToVerify, setProofToVerify] = useState("")
   const [submissionResult, setSubmissionResult] = useState<HashSubmissionResult | null>(null)
   const [hashInfo, setHashInfo] = useState<HashInfo | null>(null)
+  const [zkVerificationResult, setZkVerificationResult] = useState<ZKVerificationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   // Auto-fill hash when currentHash changes
@@ -83,6 +87,25 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
       setHashInfo(info)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to check hash")
+    }
+  }
+
+  const [zkError, setZkError] = useState<string | null>(null)
+
+  const handleVerifyZKProof = async () => {
+    if (!proofToVerify.trim()) {
+      setZkError("Please enter a ZK proof to verify")
+      return
+    }
+
+    setZkError(null)
+    setZkVerificationResult(null)
+    try {
+      const proofData = JSON.parse(proofToVerify)
+      const result = await verifyZKProofOnChain(proofData)
+      setZkVerificationResult(result)
+    } catch (err) {
+      setZkError(err instanceof Error ? err.message : "Failed to verify ZK proof")
     }
   }
 
@@ -278,19 +301,112 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
               </AlertDescription>
             </Alert>
           )}
+
+          {/* Error Display for Hash Check Section */}
+          {error && !zkVerificationResult && !submissionResult && (
+            <Alert className="border-red-200 bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800">
+                <strong>Hash Check Error</strong>
+                <div className="text-sm mt-1">{error}</div>
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
-      {/* Error Display */}
-      {error && (
-        <Alert className="border-red-200 bg-red-50">
-          <AlertCircle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
-            <strong>Error</strong>
-            <div className="text-sm mt-1">{error}</div>
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Verify ZK Proof on Blockchain */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5" />
+            Verify ZK Proof on Blockchain
+          </CardTitle>
+          <CardDescription>
+            Verify a ZK proof against the stored hash using the contract's verifyKnowledge function
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="proof-verify">ZK Proof JSON</Label>
+            <textarea
+              id="proof-verify"
+              value={proofToVerify}
+              onChange={(e) => setProofToVerify(e.target.value)}
+              placeholder="Paste the complete ZK proof JSON here..."
+              className="w-full h-32 p-3 border rounded-md text-sm font-mono"
+            />
+          </div>
+
+          <Button
+            onClick={handleVerifyZKProof}
+            disabled={!proofToVerify.trim() || isVerifyingZK}
+            variant="outline"
+            className="w-full"
+          >
+            {isVerifyingZK ? (
+              <>
+                <Clock className="h-4 w-4 mr-2 animate-spin" />
+                Verifying on Blockchain...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Verify ZK Proof on Chain
+              </>
+            )}
+          </Button>
+
+          {/* ZK Verification Error */}
+          {zkError && (
+            <Alert className="border-red-200 bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800">
+                <strong>ZK Verification Error</strong>
+                <div className="text-sm mt-1">{zkError}</div>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {zkVerificationResult && (
+            <Alert 
+              className={
+                zkVerificationResult.isValid 
+                  ? "border-emerald-200 bg-emerald-50" 
+                  : "border-red-200 bg-red-50"
+              }
+            >
+              {zkVerificationResult.isValid ? (
+                <CheckCircle className="h-4 w-4 text-emerald-600" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-red-600" />
+              )}
+              <AlertDescription 
+                className={zkVerificationResult.isValid ? "text-emerald-800" : "text-red-800"}
+              >
+                <div className="space-y-2">
+                  <div>
+                    <strong>
+                      {zkVerificationResult.isValid ? "✅ ZK Proof Valid!" : "❌ ZK Proof Invalid"}
+                    </strong>
+                  </div>
+                  <div className="text-sm space-y-1">
+                    <div>Verified at: {new Date(zkVerificationResult.timestamp).toLocaleString()}</div>
+                    <div>Method: Contract verifyKnowledge() call</div>
+                    {zkVerificationResult.txHash && (
+                      <>
+                        <div>Transaction: <code className="bg-emerald-100 px-1 rounded">{zkVerificationResult.txHash}</code></div>
+                        <div>Block: #{zkVerificationResult.blockNumber}</div>
+                        <div>Gas Used: {zkVerificationResult.gasUsed?.toLocaleString()}</div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
 
       <Separator />
 
@@ -304,8 +420,12 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
+            <div className="text-sm font-medium">Contract Name</div>
+            <div className="text-sm text-slate-600">AnonymousData</div>
+          </div>
+          <div>
             <div className="text-sm font-medium">Contract Address</div>
-            <div className="text-sm text-slate-600 font-mono">0x1234567890123456789012345678901234567890</div>
+            <div className="text-sm text-slate-600 font-mono">0xfC13069148EFED7865b1355aCb9986E8eEfd232b</div>
           </div>
           <div>
             <div className="text-sm font-medium">Network</div>
@@ -318,10 +438,10 @@ export function BlockchainTab({ currentHash }: BlockchainTabProps) {
           <div>
             <div className="text-sm font-medium">Features</div>
             <ul className="text-sm text-slate-600 list-disc list-inside space-y-1">
-              <li>Store ZK proof hashes on-chain</li>
-              <li>Verify hash existence and metadata</li>
-              <li>Immutable proof of submission</li>
-              <li>Decentralized verification</li>
+              <li>Store Poseidon hashes via setHash(uint256)</li>
+              <li>Read stored hash via storedHash()</li>
+              <li>ZK proof verification with verifyKnowledge()</li>
+              <li>Groth16 verifier integration</li>
             </ul>
           </div>
         </CardContent>
